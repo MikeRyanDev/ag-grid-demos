@@ -7,12 +7,19 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node server/index.js"
   },
   "dependencies": {
+    "@hashbrownai/core": "^0.3.0",
+    "@hashbrownai/openai": "^0.3.0",
+    "@hashbrownai/react": "^0.3.0",
     "ag-charts-enterprise": "11.0.0",
-    "ag-grid-enterprise": "33.0.2",
-    "ag-grid-react": "33.0.2",
+    "ag-grid-enterprise": "34.3.0",
+    "ag-grid-react": "34.3.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

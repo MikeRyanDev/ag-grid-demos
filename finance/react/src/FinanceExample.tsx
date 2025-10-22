@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AgChartsEnterpriseModule } from "ag-charts-enterprise";
 import React, {
   useCallback,
@@ -13,6 +14,8 @@ import {
   type ColDef,
   type GetRowIdFunc,
   type GetRowIdParams,
+  type GridApi,
+  GridReadyEvent,
   ModuleRegistry,
   type ValueFormatterFunc,
   type ValueGetterParams,
@@ -34,6 +37,7 @@ import {
   SetFilterModule,
   SparklinesModule,
   StatusBarModule,
+  AiToolkitModule,
 } from "ag-grid-enterprise";
 import { AgGridReact } from "ag-grid-react";
 
@@ -41,6 +45,7 @@ import styles from "./FinanceExample.module.css";
 import { getData } from "./data";
 import { TickerCellRenderer } from "./renderers/TickerCellRenderer";
 import { sparklineTooltipRenderer } from "./renderers/sparklineTooltipRenderer";
+import { NLQuery } from "./NLQuery";
 
 export interface Props {
   gridTheme?: string;
@@ -49,7 +54,7 @@ export interface Props {
   updateInterval?: number;
 }
 
-const DEFAULT_UPDATE_INTERVAL = 60;
+const DEFAULT_UPDATE_INTERVAL = 600;
 const PERCENTAGE_CHANGE = 20;
 
 ModuleRegistry.registerModules([
@@ -69,6 +74,7 @@ ModuleRegistry.registerModules([
   StatusBarModule,
   IntegratedChartsModule.with(AgChartsEnterpriseModule),
   SparklinesModule.with(AgChartsEnterpriseModule),
+  AiToolkitModule,
 ]);
 
 const numberFormatter: ValueFormatterFunc = ({ value }) => {
@@ -87,6 +93,16 @@ export const FinanceExample: React.FC<Props> = ({
 }) => {
   const [rowData, setRowData] = useState(getData());
   const gridRef = useRef<AgGridReact>(null);
+  const [schema, setSchema] = useState<any | undefined>(undefined);
+  const [gridApi, setGridApi] = useState<GridApi | null>(null);
+
+  const onGridReady = useCallback((params: GridReadyEvent) => {
+    const schema = params.api.getStructuredSchema();
+    console.log(schema);
+
+    setSchema(schema);
+    setGridApi(params.api);
+  }, []);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -218,25 +234,33 @@ export const FinanceExample: React.FC<Props> = ({
   return (
     <div
       style={gridHeight ? { height: gridHeight } : {}}
-      className={`${themeClass} ${styles.grid} ${
-        gridHeight ? "" : styles.gridHeight
-      }`}
+      className={`${styles.root} ${gridHeight ? "" : styles.gridHeight}`}
     >
-      <AgGridReact
-        theme="legacy"
-        chartThemes={chartThemes}
-        ref={gridRef}
-        getRowId={getRowId}
-        rowData={rowData}
-        columnDefs={colDefs}
-        defaultColDef={defaultColDef}
-        cellSelection={true}
-        enableCharts
-        rowGroupPanelShow="always"
-        suppressAggFuncInHeader
-        groupDefaultExpanded={-1}
-        statusBar={statusBar}
-      />
+      <div className={styles.layout}>
+        <div className={`${themeClass} ${styles.gridContainer}`}>
+          <AgGridReact
+            theme="legacy"
+            chartThemes={chartThemes}
+            ref={gridRef}
+            getRowId={getRowId}
+            rowData={rowData}
+            columnDefs={colDefs}
+            defaultColDef={defaultColDef}
+            cellSelection={true}
+            enableCharts
+            rowGroupPanelShow="always"
+            suppressAggFuncInHeader
+            groupDefaultExpanded={-1}
+            statusBar={statusBar}
+            onGridReady={onGridReady}
+          />
+        </div>
+        {schema && gridApi && (
+          <div className={styles.chatPanel}>
+            <NLQuery schema={schema} gridApi={gridApi} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

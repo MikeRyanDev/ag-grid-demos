@@ -20,6 +20,14 @@ The [AG Grid Finance Demo](https://ag-grid.com/example-finance/) in React.js.
 
 2. Install dependencies: `npm install`
 3. Run the dev server: `npm run dev`
+4. (Optional) Start the demo API server in a separate terminal: `npm run server`
+
+### Demo API Endpoints
+
+- `GET http://localhost:4000/api/ping` returns a simple health payload.
+- `POST http://localhost:4000/api/echo` echoes any JSON payload you send.
+
+The server uses CORS and JSON middleware so it can be called directly from the React app during local development.
 
 ## How It Was Built
 
